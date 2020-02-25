@@ -1,0 +1,7 @@
+{
+    "Cities": ["moscow", "volgodonsk"],
+    "MonthsCOMMENT": "Месяцы указывать промежутком. Интервал [october, march] передаст в программу промежуток с окт по март включительно",
+    "MonthsNumbers": [12,12],
+    "Site": "yandex",
+    "Year": "2018"
+}

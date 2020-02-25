@@ -1,0 +1,18 @@
+    [
+        {
+            "source": "yandex",
+            "country": "russia",
+            "city": "moscow",
+            "month": "february",
+            "year": "2018",
+            "result": "\\cache\\yandex\\russia\\moscow_february_2018.json"
+        },
+        {
+            "source": "yandex",
+            "country": "russia",
+            "city": "moscow",
+            "month": "january",
+            "year": "2018",
+            "result": "\\cache\\yandex\\russia\\moscow_january_2018.json"
+        }
+    ]
