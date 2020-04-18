@@ -20,6 +20,7 @@ func newConfig() (cfg *config) {
 	newLog(cfg.appPath)
 	file, err := os.Open(filepath.Join(cfg.appPath, `config.json`))
 	if err != nil {
+		os.Stderr.WriteString("can't open config.json\n")
 		log.Fatal("can't open config.json")
 	}
 	defer file.Close()
