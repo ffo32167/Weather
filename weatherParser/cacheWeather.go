@@ -65,16 +65,6 @@ func cacheOpen(path string) []weatherResponse {
 	return data
 }
 
-// Извлечь данные по месяцу из кэша на диске
-func (app) cacheRead(path string) []weatherResponse {
-	return cacheOpen(path)
-}
-
-// Сохранить полученные и обработанные данные по месяцу на диск
-func (app) cacheMonthWrite(path string, data []weatherResponse) {
-	cacheMonthWrite(path, data)
-}
-
 // Кэш в памяти
 type weatherMemCache struct {
 	mx    sync.RWMutex

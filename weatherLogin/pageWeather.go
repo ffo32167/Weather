@@ -17,7 +17,24 @@ import (
 
 // пишем только через шаблоны, потому что у шаблонов есть защита от межсайтового скриптинга XSS
 
-func (config *config) pageInnerGet(w http.ResponseWriter, r *http.Request) {
+// Вызвать удаленную процедуру
+func getWeather(cities []string, months []int32, site string) []byte {
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Error("can't connect to grpc server:", err)
+	}
+	defer conn.Close()
+	grpcClient := pb.NewWeatherParserClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	r, err := grpcClient.GetWeather(ctx, &pb.WeatherParams{Cities: cities, MonthsNumbers: months, Site: site, Year: "2018"})
+	if err != nil {
+		log.Error("grpc error:", err)
+	}
+	return r.GetComparisonCSV()
+}
+
+func (config *config) pageWeatherGet(w http.ResponseWriter, r *http.Request) {
 	// Проверить наличие сессии
 	sess, err := checkSession(r)
 	if err != nil {
@@ -43,7 +60,7 @@ func (config *config) pageInnerGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // Обработчик
-func (config *config) pageInnerPost(w http.ResponseWriter, r *http.Request) {
+func (config *config) pageWeatherPost(w http.ResponseWriter, r *http.Request) {
 	var filename = "Comparison.csv"
 	// Если нажали кнопку, то разобрать параметры, выполнить запрос и отправить данные
 	monthsNumbers := make([]int32, 0)
@@ -64,35 +81,19 @@ func (config *config) pageInnerPost(w http.ResponseWriter, r *http.Request) {
 	// Получить данные через grpc
 	data := getWeather(strings.Split(r.FormValue("cities"), ", "), monthsNumbers, "yandex")
 	// Отдать файл через браузер
-	dataHeader := make([]byte, 512)
-	if len(data) <= 512 {
-		copy(dataHeader, data)
-	} else {
-		copy(dataHeader, data[:512])
-	}
+	// Попробовать mime.TypeByExtension()
+	// dataHeader := make([]byte, 512)
+	// if len(data) <= 512 {
+	// 	copy(dataHeader, data)
+	// } else {
+	// 	copy(dataHeader, data[:512])
+	// }
 	fmt.Println("data size", len(data))
 	if len(data) < 100 {
 		log.WithFields(logrus.Fields{"data size": len(data), "monthStart": r.FormValue("monthStart"), "monthEnd": r.FormValue("monthEnd")}).Error("failed to get data")
 	}
-	dataContentType := http.DetectContentType(dataHeader)
+	// dataContentType := http.DetectContentType(dataHeader)
 	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
-	w.Header().Set("Content-Type", dataContentType)
+	// w.Header().Set("Content-Type", dataContentType)
 	w.Write(data)
-}
-
-// Вызвать удаленную процедуру
-func getWeather(cities []string, months []int32, site string) []byte {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Error("can't connect to grpc server:", err)
-	}
-	defer conn.Close()
-	grpcClient := pb.NewWeatherParserClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	r, err := grpcClient.GetWeather(ctx, &pb.WeatherParams{Cities: cities, MonthsNumbers: months, Site: site, Year: "2018"})
-	if err != nil {
-		log.Error("grpc error:", err)
-	}
-	return r.GetComparisonCSV()
 }

@@ -1,6 +1,14 @@
 package main
 
-import "flag"
+import (
+	"net"
+	"path/filepath"
+
+	pb "github.com/ffo32167/weather/weatherProto"
+
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+)
 
 // Структура для промежуточного хранения данных
 type weatherResponse struct {
@@ -24,14 +32,20 @@ type weatherResponse struct {
 */
 
 func main() {
-	var mode string
-	flag.StringVar(&mode, "mode", "", "mode: s - grpc service; application is a default mode")
-	flag.Parse()
-	config := newConfig()
-	switch mode {
-	case "s":
-		runService(config)
-	default:
-		runApp(config)
+	cfg := newConfig()
+	log.Info("Reading Cache")
+	wmc := newWeatherCache()
+	path := filepath.Join(cfg.appPath, `cache`, `yandex`, `russia`)
+	wmc.cacheLoad(path)
+
+	log.Info("GRPC service starting up...")
+	lis, err := net.Listen("tcp", cfg.GrpcPort)
+	if err != nil {
+		log.WithFields(logrus.Fields{"err": err}).Fatal("can't listen port")
+	}
+	serverGRPC := grpc.NewServer()
+	pb.RegisterWeatherParserServer(serverGRPC, &grpcServer{config: cfg, wmc: &wmc})
+	if err := serverGRPC.Serve(lis); err != nil {
+		log.WithFields(logrus.Fields{"err": err}).Fatal("can't start grpc Server")
 	}
 }

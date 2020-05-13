@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-// config это настройки
+// config
 type config struct {
 	appPath  string
 	LogLevel string `json:"LogLevel"`
