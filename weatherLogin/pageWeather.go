@@ -3,23 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	pb "github.com/ffo32167/weather/weatherProto"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
-// пишем только через шаблоны, потому что у шаблонов есть защита от межсайтового скриптинга XSS
-
 // Вызвать удаленную процедуру
 func getWeather(cities []string, months []int32, site string) []byte {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Error("can't connect to grpc server:", err)
 	}
@@ -34,35 +30,22 @@ func getWeather(cities []string, months []int32, site string) []byte {
 	return r.GetComparisonCSV()
 }
 
-func (config *config) pageWeatherGet(w http.ResponseWriter, r *http.Request) {
-	// Проверить наличие сессии
-	sess, err := checkSession(r)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+func pageWeatherGet(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
+	untypedUsername := session.Values["user"]
+	username, ok := untypedUsername.(string)
+	if !ok {
+		fmt.Println("cannot assert type for username")
 	}
-	// Если нет сессии, то отправить за новой
-	if sess == nil {
-		loginTempl, err := template.New("login").Parse(loginPageTmpl)
-		if err != nil {
-			log.WithFields(logrus.Fields{"config": config}).Error("can't parse loginPageTmpl template")
-		}
-		loginTempl.Execute(w, sess)
-		// и начинаем всё заново
-		return
+	fmt.Println("pageWeatherGet, values user:", username)
+	if err := templates.ExecuteTemplate(w, "index.html", struct{ Login string }{Login: username}); err != nil {
+		log.Error("can't parse index.html:", err)
 	}
-	// Если только получили страницу, то и отправить страницу
-	t, err := template.New("inner").Parse(innerPageTmpl)
-	if err != nil {
-		log.WithFields(logrus.Fields{"config": config}).Error("can't parse innerPageTmpl template")
-	}
-	t.Execute(w, sess)
 }
 
 // Обработчик
-func (config *config) pageWeatherPost(w http.ResponseWriter, r *http.Request) {
+func pageWeatherPost(w http.ResponseWriter, r *http.Request) {
 	var filename = "Comparison.csv"
-	// Если нажали кнопку, то разобрать параметры, выполнить запрос и отправить данные
 	monthsNumbers := make([]int32, 0)
 	monthStart, err := strconv.Atoi(r.FormValue("monthStart"))
 	if err != nil {
@@ -78,22 +61,18 @@ func (config *config) pageWeatherPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	monthsNumbers = append(monthsNumbers, int32(monthEnd))
-	// Получить данные через grpc
-	data := getWeather(strings.Split(r.FormValue("cities"), ", "), monthsNumbers, "yandex")
+	// Вызвать grpc
+	// todo сделать обработку ошибок/пустых строк для FormValue
+	data := getWeather(
+		strings.Split(r.FormValue("cities"), ", "),
+		monthsNumbers,
+		r.FormValue("Site"),
+	)
 	// Отдать файл через браузер
-	// Попробовать mime.TypeByExtension()
-	// dataHeader := make([]byte, 512)
-	// if len(data) <= 512 {
-	// 	copy(dataHeader, data)
-	// } else {
-	// 	copy(dataHeader, data[:512])
-	// }
 	fmt.Println("data size", len(data))
 	if len(data) < 100 {
-		log.WithFields(logrus.Fields{"data size": len(data), "monthStart": r.FormValue("monthStart"), "monthEnd": r.FormValue("monthEnd")}).Error("failed to get data")
+		log.WithFields(logrus.Fields{"data size": len(data), "cities": r.FormValue("cities"), "monthStart": r.FormValue("monthStart"), "monthEnd": r.FormValue("monthEnd")}).Error("failed to get data")
 	}
-	// dataContentType := http.DetectContentType(dataHeader)
 	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
-	// w.Header().Set("Content-Type", dataContentType)
 	w.Write(data)
 }

@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -9,6 +11,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 )
+
+var errMemCacheMonthNotFound = errors.New("Month data not found in memory")
 
 // Сформировать путь к кэшу
 func cachePath(pathParts ...string) string {
@@ -75,18 +79,21 @@ type weatherMemCache struct {
 func newWeatherCache() weatherMemCache {
 	return weatherMemCache{
 		cache: make(map[string][]weatherResponse),
-		// Мьютекс никак инициализировать не нужно, его "нулевое значение" это разлоченный мьютекс,
-		// готовый к использованию
 	}
 }
 
 // Получить данные месяца из памяти(city, month)
-func (wmc *weatherMemCache) cacheRead(path string) []weatherResponse {
+func (wmc *weatherMemCache) cacheRead(path string) (wr []weatherResponse, err error) {
 	wmc.mx.RLock()
 	defer wmc.mx.RUnlock()
-	log.WithFields(logrus.Fields{"path": path}).Debug()
-	wr, _ := wmc.cache[path]
-	return wr
+	// fmt.Println("wmc.cache:", wmc.cache)
+	wr, ok := wmc.cache[path]
+	if ok {
+		fmt.Println("найден:", path)
+		return wr, nil
+	}
+	fmt.Println("!!!!!!НЕ найден в кэше", path)
+	return nil, errMemCacheMonthNotFound
 }
 
 func (wmc *weatherMemCache) cacheMonthWrite(path string, wr []weatherResponse) {

@@ -1,32 +1,8 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-
-	pb "github.com/ffo32167/weather/weatherProto"
 	"github.com/sirupsen/logrus"
 )
-
-//	Загрузить параметры для приложения
-func loadParams(appPath string) (params *pb.WeatherParams) {
-	file, err := os.Open(filepath.Join(appPath, `params.json`))
-	if err != nil {
-		log.WithFields(logrus.Fields{"error": err}).Fatal("can't open params.json")
-	}
-	defer file.Close()
-	buff, err := ioutil.ReadAll(file)
-	if err != nil {
-		log.WithFields(logrus.Fields{"error": err}).Fatal("can't read params.json")
-	}
-	err = json.Unmarshal(buff, &params)
-	if err != nil {
-		log.WithFields(logrus.Fields{"error": err}).Fatal("can't unmarshal params.json")
-	}
-	return
-}
 
 //	Развернуть срез месяцев []int{11,2}
 //	в срез []string{"november", "december", "january", "february"}

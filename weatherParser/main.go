@@ -37,7 +37,6 @@ func main() {
 	wmc := newWeatherCache()
 	path := filepath.Join(cfg.appPath, `cache`, `yandex`, `russia`)
 	wmc.cacheLoad(path)
-
 	log.Info("GRPC service starting up...")
 	lis, err := net.Listen("tcp", cfg.GrpcPort)
 	if err != nil {

@@ -44,8 +44,8 @@ func (config config) chooseSiteParser(site string) (source siteParser) {
 }
 
 //	Загрузить конфигурацию, настроить логи
-func newConfig() (cfg config) {
-	cfg = config{}
+func newConfig() (cfg *config) {
+	cfg = &config{}
 	cfg.appPath, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 	if cfg.appPath == "" {
 		log.Fatal("can't get application path")

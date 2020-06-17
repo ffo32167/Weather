@@ -10,14 +10,14 @@ import (
 )
 
 type cacheReader interface {
-	cacheRead(path string) []weatherResponse
+	cacheRead(path string) ([]weatherResponse, error)
 	cacheMonthWrite(string, []weatherResponse)
 }
 
 // Реализация сервера grpc
 type grpcServer struct {
 	pb.UnimplementedWeatherParserServer
-	config config
+	config *config
 	wmc    *weatherMemCache
 }
 
@@ -26,13 +26,13 @@ func (server *grpcServer) GetWeather(ctx context.Context, params *pb.WeatherPara
 	log.WithFields(logrus.Fields{"params": params, "config": server.config}).Debug("grpc params")
 	siteParser := server.config.chooseSiteParser(params.Site)
 	data := weatherDataGrab(siteParser, params, server.config, server.wmc)
-	buff := encode(data, params.Cities)
-	log.WithFields(logrus.Fields{"params": params, "config": server.config, "result": len(buff.Bytes())}).Debug("grpc results")
-	return &pb.WeatherResponse{ComparisonCSV: buff.Bytes()}, nil
+	buffer := encode(data, params.Cities)
+	log.WithFields(logrus.Fields{"params": params, "config": server.config, "result": len(buffer.Bytes())}).Debug("grpc results")
+	return &pb.WeatherResponse{ComparisonCSV: buffer.Bytes()}, nil
 }
 
 // Получить данные путём рассматривания кэша или выбранного сайта
-func weatherDataGrab(sp siteParser, params *pb.WeatherParams, config config, cr cacheReader) (wr [][]weatherResponse) {
+func weatherDataGrab(sp siteParser, params *pb.WeatherParams, config *config, cr cacheReader) (wr [][]weatherResponse) {
 	var (
 		cityWeather []weatherResponse
 		country     string = "russia"
@@ -44,7 +44,8 @@ func weatherDataGrab(sp siteParser, params *pb.WeatherParams, config config, cr 
 		for _, month := range params.Months {
 			path := cachePath(config.appPath, params.Site, country, city, month, params.Year)
 			// Проверить есть ли кэш, взять данные из него и перейти к следующему
-			monthWeather := cr.cacheRead(path)
+			monthWeather, _ := cr.cacheRead(path)
+			log.WithFields(logrus.Fields{"len(monthWeather)": len(monthWeather)}).Debug("weatherDataGrab parameters")
 			if len(monthWeather) > 0 {
 				cityWeather = append(cityWeather, monthWeather...)
 				continue
@@ -61,7 +62,7 @@ func weatherDataGrab(sp siteParser, params *pb.WeatherParams, config config, cr 
 			}
 			defer resp.Body.Close()
 			// Распарсить страницу
-			monthWeather = sp.siteParse(resp.Body, city, month, config)
+			monthWeather = sp.siteParse(resp.Body, city, month, *config)
 			// Добавить результаты месяца в кэш
 			cr.cacheMonthWrite(path, monthWeather)
 			// Добавить результаты месяца в результаты по городу
