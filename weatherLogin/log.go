@@ -13,7 +13,7 @@ var log = logrus.New()
 // Создать и настроить логгер
 func newLog(appPath string) {
 	log.Out = os.Stdout
-	file, err := os.OpenFile(filepath.Join(appPath, "weatherLogin.log.json"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	file, err := os.OpenFile(filepath.Join(appPath, "weatherLogin.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err == nil {
 		log.Out = file
 	} else {
