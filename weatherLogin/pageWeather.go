@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	pb "github.com/ffo32167/weather/weatherProto"
+	pb "github.com/ffo32167/Weather/weatherProto"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
