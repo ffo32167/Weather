@@ -1,6 +1,0 @@
-{   
-    "HttpPort": ":8080",
-    "LogLevel": "debug",
-    "LogLevelDictionary":"panic, fatal, error, warn, info, debug, trace",
-    "SourceLinesInLog": true
-}
