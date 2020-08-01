@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// PageLoginGet Обработчик Get страницы логина
-func PageLoginGet(w http.ResponseWriter, r *http.Request) {
+// Обработчик Get страницы логина
+func pageLoginGet(w http.ResponseWriter, r *http.Request) {
 	// проверяем есть ли активная сессия у клиента
 	session, err := s.Store.Get(r, "session")
 	if err != nil {
@@ -26,8 +26,8 @@ func PageLoginGet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// PageLoginPost Обработчик Post страницы логина
-func PageLoginPost(w http.ResponseWriter, r *http.Request) {
+// Обработчик Post страницы логина
+func pageLoginPost(w http.ResponseWriter, r *http.Request) {
 	// Значение поля Логин из html-формы
 	r.ParseForm()
 	inputLogin := r.PostForm.Get("login")

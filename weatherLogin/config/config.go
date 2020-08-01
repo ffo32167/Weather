@@ -6,14 +6,18 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"google.golang.org/grpc"
 )
 
 // Сonfig конфигурация
 type Сonfig struct {
-	AppPath          string
-	HTTPPort         string `json:"httpPort"`
-	LogLevel         string `json:"LogLevel"`
-	SourceLinesInLog *bool  `json:"SourceLinesInLog"`
+	AppPath           string
+	HTTPPort          string `json:"httpPort"`
+	LogLevel          string `json:"LogLevel"`
+	SourceLinesInLog  *bool  `json:"SourceLinesInLog"`
+	GRPCServerAddress string `json:"GRPCServerAddress"`
+	Conn              *grpc.ClientConn
 }
 
 // NewConfig инициализирует конфиг
@@ -34,6 +38,11 @@ func NewConfig() (cfg *Сonfig) {
 	err = json.Unmarshal(buff, &cfg)
 	if err != nil {
 		l.Fatal("can't unmarshal config.json")
+	}
+	// инициализируем соединение с grpc сервером
+	cfg.Conn, err = grpc.Dial(cfg.GRPCServerAddress, grpc.WithInsecure())
+	if err != nil {
+		l.Fatal("can't connect to grpc server:", err)
 	}
 	return cfg
 }
