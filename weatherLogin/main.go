@@ -1,7 +1,11 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	c "github.com/ffo32167/weather/weatherLogin/config"
@@ -25,15 +29,34 @@ func main() {
 	r := h.NewRouter()
 	// Запустить сервер
 	http.Handle("/", r)
-
+	// парочка таймаутов на всякий случай
 	server := &http.Server{
 		Addr:         cfg.HTTPPort,
 		ReadTimeout:  time.Second,
 		WriteTimeout: time.Second,
 	}
-	logrus.Info("starting server at", cfg.HTTPPort)
+	// слушаем сигнал на прекращение работы
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	if err := server.ListenAndServe(); err != nil {
-		logrus.Fatal("can't start server:", err)
+	logrus.Info("starting server at", cfg.HTTPPort)
+	go func() {
+		if err := server.ListenAndServe(); err != nil {
+			logrus.Fatal("can't start server:", err)
+		}
+	}()
+
+	// когда сигнал приходит, выключаем за собой свет
+	<-done
+	logrus.Info("server stopped")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer func() {
+		logrus.Info("closing database connection")
+		cancel()
+	}()
+
+	if err := server.Shutdown(ctx); err != nil {
+		logrus.Fatal("shutdown failed:", err)
 	}
+	logrus.Print("server shutdown")
 }

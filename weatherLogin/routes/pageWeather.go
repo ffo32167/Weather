@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	pb "github.com/ffo32167/Weather/weatherProto"
 	s "github.com/ffo32167/weather/weatherLogin/session"
 	t "github.com/ffo32167/weather/weatherLogin/templates"
+	pb "github.com/ffo32167/weather/weatherProto"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -36,6 +36,7 @@ func getWeather(cities []string, months []int32, site string, replyFormat string
 
 // PageWeatherGet Обработчик Get страницы
 func PageWeatherGet(w http.ResponseWriter, r *http.Request) {
+	// time.Sleep(3 * time.Second)
 	session, err := s.Store.Get(r, "session")
 	if err != nil {
 		logrus.Error("can't decode session")
