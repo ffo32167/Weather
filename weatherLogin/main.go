@@ -9,7 +9,7 @@ import (
 	"time"
 
 	c "github.com/ffo32167/weather/weatherLogin/config"
-	h "github.com/ffo32167/weather/weatherLogin/routes"
+	r "github.com/ffo32167/weather/weatherLogin/routes"
 	t "github.com/ffo32167/weather/weatherLogin/templates"
 
 	// используем логер из weatherParser
@@ -26,7 +26,7 @@ func main() {
 	// Инициализировать шаблоны
 	t.Initialize(cfg.AppPath)
 	// Инициализировать роутер
-	r := h.NewRouter(cfg.Conn)
+	r := r.NewRouter(cfg.Conn)
 	// Запустить сервер
 	http.Handle("/", r)
 	// парочка таймаутов на всякий случай
