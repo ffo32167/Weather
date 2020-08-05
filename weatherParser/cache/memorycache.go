@@ -76,11 +76,10 @@ type WeatherMemCache struct {
 }
 
 // NewWeatherCache Инициализирует кэш в памяти
-func NewWeatherCache(path string) (wmc *WeatherMemCache) {
+func NewWeatherCache() (wmc *WeatherMemCache) {
 	wmc = &WeatherMemCache{
 		cache: make(map[string][]w.WeatherResponse),
 	}
-	wmc.CacheLoad(path)
 	return wmc
 }
 

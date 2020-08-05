@@ -23,7 +23,8 @@ func main() {
 
 	// создать кэш
 	logrus.Info("Reading Cache")
-	wmc := ch.NewWeatherCache(cfg.AppPath)
+	wmc := ch.NewWeatherCache()
+	wmc.CacheLoad(cfg.AppPath)
 
 	// запустить сервер
 	logrus.Info("GRPC service starting up...")
