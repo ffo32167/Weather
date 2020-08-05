@@ -18,6 +18,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// сделать возможность смены grpc сервера на лету
+
 func main() {
 	// Инициализировать конфиг
 	cfg := c.NewConfig()
@@ -35,9 +37,6 @@ func main() {
 		ReadTimeout:  time.Second,
 		WriteTimeout: time.Second,
 	}
-	// слушаем сигнал на прекращение работы
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	// пытаемся запустить сервер
 	logrus.Info("starting server at ", cfg.HTTPPort)
 	go func() {
@@ -45,6 +44,10 @@ func main() {
 			logrus.Fatal("can't start server: ", err)
 		}
 	}()
+
+	// слушаем сигнал на прекращение работы
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	// когда сигнал приходит, выключаем за собой свет
 	<-done
