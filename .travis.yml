@@ -8,7 +8,6 @@ notifications:
 before_script:
   - go get -t -v ./...
 script:
-  - go test -v ./weatherParser/
-  - go test -v ./weatherLogin/
+  - go test -v ./...
   - go build -v ./weatherParser/
   - go build -v ./weatherLogin/
