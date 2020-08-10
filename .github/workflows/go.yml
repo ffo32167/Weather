@@ -29,6 +29,12 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
+        
+    - name: BuildParser
+      run: go build -o ./weatherParser/weatherParser ./weatherParser/
 
+    - name: BuildLogin
+      run: go build -o ./weatherLogin/weatherLogin ./weatherLogin/
+      
     - name: Test
       run: go test -v ./...
