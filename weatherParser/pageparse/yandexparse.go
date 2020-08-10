@@ -1,4 +1,4 @@
-package siteparse
+package pageparse
 
 import (
 	"io"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	c "github.com/ffo32167/weather/weatherParser/config"
-	w "github.com/ffo32167/weather/weatherParser/weatherresponse"
+	w "github.com/ffo32167/weather/weatherParser/weatherdata"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,12 +20,12 @@ func (y yandex) CreateDataPath(country, city, month, year string) (url string) {
 }
 
 //	Распарсить информацию из данных источника
-func (yandex) SiteParse(dataSource io.Reader, city string, month string, config c.Config) (data []w.WeatherResponse) {
+func (yandex) SiteParse(source io.Reader, city string, month string, config c.Config) (data []w.DayWeather) {
 	var (
-		day     w.WeatherResponse
+		day     w.DayWeather
 		doWrite bool
 	)
-	doc, err := goquery.NewDocumentFromReader(dataSource)
+	doc, err := goquery.NewDocumentFromReader(source)
 	if err != nil {
 		logrus.Error("can't parse page as HTML")
 	}

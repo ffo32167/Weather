@@ -5,12 +5,12 @@ import (
 	"reflect"
 	"testing"
 
-	w "github.com/ffo32167/weather/weatherParser/weatherresponse"
+	w "github.com/ffo32167/weather/weatherParser/weatherdata"
 )
 
 func Test_json_Encode(t *testing.T) {
 	type args struct {
-		dataStruct [][]w.WeatherResponse
+		dataStruct [][]w.DayWeather
 		cities     []string
 	}
 	tests := []struct {

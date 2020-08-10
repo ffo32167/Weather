@@ -1,16 +1,16 @@
-package siteparse
+package pageparse
 
 import (
 	"io"
 
 	c "github.com/ffo32167/weather/weatherParser/config"
-	w "github.com/ffo32167/weather/weatherParser/weatherresponse"
+	w "github.com/ffo32167/weather/weatherParser/weatherdata"
 )
 
 // SiteParser Интерфейс для получения данных с сайтов(worldWeather/yandexWeather)
 type SiteParser interface {
 	CreateDataPath(country, city, month, year string) (address string)
-	SiteParse(source io.Reader, city string, month string, config c.Config) []w.WeatherResponse
+	SiteParse(source io.Reader, city string, month string, config c.Config) []w.DayWeather
 }
 
 // ChooseSiteParser Выбирает источник данных

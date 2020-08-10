@@ -1,4 +1,4 @@
-package siteparse
+package pageparse
 
 import (
 	"io"
@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	c "github.com/ffo32167/weather/weatherParser/config"
-	w "github.com/ffo32167/weather/weatherParser/weatherresponse"
+	w "github.com/ffo32167/weather/weatherParser/weatherdata"
 )
 
 func Test_worldWeather_CreateDataPath(t *testing.T) {
@@ -49,7 +49,7 @@ func Test_worldWeather_SiteParse(t *testing.T) {
 		name     string
 		w        worldWeather
 		args     args
-		wantData []w.WeatherResponse
+		wantData []w.DayWeather
 	}{
 		{
 			"worldWeather siteParse",

@@ -41,7 +41,7 @@ func (pwh pageWeatherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	monthsNumbers = append(monthsNumbers, int32(monthEnd))
 	// Вызвать grpc
 	// todo сделать обработку ошибок/пустых строк для FormValue
-	data, format := getWeather(
+	data, format := sendGRPCRequest(
 		strings.Split(r.FormValue("cities"), ", "),
 		monthsNumbers,
 		r.FormValue("Site"),
@@ -59,11 +59,11 @@ func (pwh pageWeatherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 }
 
 // Вызвать удаленную процедуру
-func getWeather(cities []string, months []int32, site string, replyFormat string, grpcConn *grpc.ClientConn) ([]byte, string) {
+func sendGRPCRequest(cities []string, months []int32, site string, replyFormat string, grpcConn *grpc.ClientConn) ([]byte, string) {
 	grpcClient := pb.NewWeatherParserClient(grpcConn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := grpcClient.GetWeather(ctx, &pb.WeatherParams{Cities: cities, MonthsNumbers: months, Site: site, Year: year, ReplyFormat: replyFormat})
+	r, err := grpcClient.ProcessGRPCRequest(ctx, &pb.WeatherParams{Cities: cities, MonthsNumbers: months, Site: site, Year: year, ReplyFormat: replyFormat})
 	if err != nil {
 		logrus.Error("grpc error:", err)
 	}
@@ -86,41 +86,3 @@ func pageWeatherGet(w http.ResponseWriter, r *http.Request) {
 		logrus.Error("can't parse index.html:", err)
 	}
 }
-
-/*
-// PageWeatherPost Обработчик Post страницы
-func PageWeatherPost(w http.ResponseWriter, r *http.Request) {
-	var filename = "Comparison"
-	monthsNumbers := make([]int32, 0)
-	monthStart, err := strconv.Atoi(r.FormValue("monthStart"))
-	if err != nil {
-		logrus.WithFields(logrus.Fields{"monthStart": r.FormValue("monthStart")}).Error("can't parse value of monthStart on innerPage")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	monthsNumbers = append(monthsNumbers, int32(monthStart))
-	monthEnd, err := strconv.Atoi(r.FormValue("monthEnd"))
-	if err != nil {
-		logrus.WithFields(logrus.Fields{"monthEnd": r.FormValue("monthEnd")}).Error("can't parse value of monthEnd on innerPage")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	monthsNumbers = append(monthsNumbers, int32(monthEnd))
-	// Вызвать grpc
-	// todo сделать обработку ошибок/пустых строк для FormValue
-	data, format := getWeather(
-		strings.Split(r.FormValue("cities"), ", "),
-		monthsNumbers,
-		r.FormValue("Site"),
-		r.FormValue("Format"),
-	)
-	fullFileName := filename + format
-	// Отдать файл через браузер
-	logrus.Info("data size", len(data))
-	if len(data) < 100 {
-		logrus.WithFields(logrus.Fields{"data size": len(data), "cities": r.FormValue("cities"), "monthStart": r.FormValue("monthStart"), "monthEnd": r.FormValue("monthEnd")}).Error("failed to get data")
-	}
-	w.Header().Set("Content-Disposition", "attachment; filename="+fullFileName)
-	w.Write(data)
-}
-*/

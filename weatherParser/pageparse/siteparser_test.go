@@ -1,4 +1,4 @@
-package siteparse
+package pageparse
 
 import (
 	"reflect"

@@ -3,12 +3,12 @@ package encode
 import (
 	"bytes"
 
-	w "github.com/ffo32167/weather/weatherParser/weatherresponse"
+	w "github.com/ffo32167/weather/weatherParser/weatherdata"
 )
 
 // Encoder кодирует ответ в различные форматы
 type Encoder interface {
-	Encode([][]w.WeatherResponse, []string) (bytes.Buffer, string)
+	Encode([][]w.DayWeather, []string) (bytes.Buffer, string)
 }
 
 // ChooseEncoder выбирает формат ответа

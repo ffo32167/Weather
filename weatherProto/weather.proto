@@ -3,7 +3,7 @@ syntax = "proto3";
 package weatherParse;
 //  protoc -I . weather.proto --go_out=plugins=grpc:.
 service weatherParser {
-  rpc getWeather (WeatherParams) returns (WeatherResponse) {}
+  rpc ProcessGRPCRequest (WeatherParams) returns (DayWeather) {}
 }
 
 message WeatherParams {
@@ -15,7 +15,7 @@ message WeatherParams {
   string ReplyFormat = 6;
 }
 
-message WeatherResponse {
+message DayWeather {
   bytes ComparisonCSV = 1;
   string Format = 2;
 }

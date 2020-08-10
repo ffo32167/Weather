@@ -8,8 +8,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// todo
-// добавить кэш работающий на Redis
+const (
+	cache   = "mem"
+	appName = "weatherParser"
+)
 
 func main() {
 	// прочитать конфиг
@@ -17,16 +19,15 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-
 	// настроить логер
-	l.NewLog("weatherParser", cfg.AppPath, cfg.SourceLinesInLog, cfg.LogLevel)
+	l.NewLog(appName, cfg.AppPath, cfg.SourceLinesInLog, cfg.LogLevel)
 
 	// создать кэш
 	logrus.Info("Reading Cache")
-	wmc := ch.NewWeatherCache()
-	wmc.CacheLoad(cfg.AppPath)
+	cache := ch.ChooseCache(cache)
+	cache.Load(cfg.AppPath)
 
 	// запустить сервер
 	logrus.Info("GRPC service starting up...")
-	g.ServerStart(cfg, wmc)
+	g.ServerStart(cfg, cache)
 }
