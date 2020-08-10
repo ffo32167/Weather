@@ -22,14 +22,17 @@ func pageLoginGet(w http.ResponseWriter, r *http.Request) {
 	}
 	// парсим шаблон
 	if err := t.Templates.ExecuteTemplate(w, "login.html", nil); err != nil {
-		logrus.Error("can't parse login.html:", err)
+		logrus.Error("can't parse login.html method Get:", err)
 	}
 }
 
 // Обработчик Post страницы логина
 func pageLoginPost(w http.ResponseWriter, r *http.Request) {
 	// Значение поля Логин из html-формы
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		logrus.Error("can't parse login.html method Post:", err)
+	}
 	inputLogin := r.PostForm.Get("login")
 	inputPassword := r.PostForm.Get("password")
 	user, err := s.AuthUser(inputLogin, inputPassword)
@@ -44,7 +47,10 @@ func pageLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	session.Values["user"] = user.Username
-	session.Save(r, w)
+	err = session.Save(r, w)
+	if err != nil {
+		logrus.Error("can't save session", err)
+	}
 	// и отправить на главную
 	http.Redirect(w, r, "/", http.StatusFound)
 }

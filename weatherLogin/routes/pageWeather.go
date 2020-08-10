@@ -55,7 +55,10 @@ func (pwh pageWeatherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		logrus.WithFields(logrus.Fields{"data size": len(data), "cities": r.FormValue("cities"), "monthStart": r.FormValue("monthStart"), "monthEnd": r.FormValue("monthEnd")}).Error("failed to get data")
 	}
 	w.Header().Set("Content-Disposition", "attachment; filename="+fullFileName)
-	w.Write(data)
+	_, err = w.Write(data)
+	if err != nil {
+		logrus.Error("cant send file to user:", err)
+	}
 }
 
 // Вызвать удаленную процедуру

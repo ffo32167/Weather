@@ -30,12 +30,15 @@ func NewWeatherMemCache() (wmc *WeatherMemCache) {
 func makeFilelist(path string) []string {
 	fileList := make([]string, 0)
 	filesPath := filepath.Join(path, "cache")
-	filepath.Walk(filesPath, func(fpath string, info os.FileInfo, err error) error {
+	err := filepath.Walk(filesPath, func(fpath string, info os.FileInfo, err error) error {
 		if !info.IsDir() && filepath.Ext(info.Name()) == ".json" {
 			fileList = append(fileList, fpath)
 		}
 		return nil
 	})
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"err": err, "path:": path}).Error("error while making file list")
+	}
 	return fileList
 }
 

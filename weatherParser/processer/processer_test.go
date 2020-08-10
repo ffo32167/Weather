@@ -67,8 +67,7 @@ func Test_monthsParse(t *testing.T) {
 }
 
 var (
-	memoryCache = ch.NewWeatherMemCache()
-	param       = w.WeatherParams{
+	param = w.WeatherParams{
 		MonthsNumbers: []int32{1, 1},
 		Cities:        []string{"Moscow"},
 		Site:          "yandex",

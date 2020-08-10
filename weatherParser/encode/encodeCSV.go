@@ -24,7 +24,10 @@ func (c csv) Encode(data [][]w.DayWeather, cities []string) (encodedData bytes.B
 	// Создаем заголовки для csv
 	cities = append([]string{"days"}, cities...)
 	w := enccsv.NewWriter(&encodedData)
-	w.Write(cities)
+	err := w.Write(cities)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"err": err, "with line:": cities}).Error("error writing cities to csv")
+	}
 	oneLine := make([]string, 0)
 	// Записываем данные построчно
 	for i := range data[0] {
