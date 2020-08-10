@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -94,7 +95,7 @@ func TestWeatherMemCache_Path(t *testing.T) {
 			"testPath",
 			wmc,
 			args{[]string{"appPath", "yandex", "russia", "moscow", "january", "2018"}},
-			`appPath\cache\yandex\russia\moscow_january_2018.json`,
+			filepath.Join("appPath", "cache", "yandex", "russia", "moscow_january_2018.json"),
 		},
 	}
 	for _, tt := range tests {
