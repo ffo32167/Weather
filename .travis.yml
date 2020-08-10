@@ -1,13 +1,14 @@
 language: go
 go:
-- 1.14.4
-- tip
-before_install:
-  - ". $HOME/.nvm/nvm.sh"
-  - nvm install stable
-  - nvm use stable
-  - npm install
+  - tip # The latest version of Go.
+
+notifications:
+  email: false
+
+before_script:
+  - go get -t -v ./...
 script:
-  - go test -v ./dashboard/
-  - go build -v
-  - npm run build-production
+  - go test -v ./weatherParser
+  - go test -v ./weatherLogin
+  - go build -v ./weatherParser
+  - go build -v ./weatherLogin
