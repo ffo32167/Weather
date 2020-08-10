@@ -1,6 +1,6 @@
 language: go
 go:
-  - tip # The latest version of Go.
+  - tip
 
 notifications:
   email: false
@@ -8,7 +8,7 @@ notifications:
 before_script:
   - go get -t -v ./...
 script:
-  - go test -v ./weatherParser
-  - go test -v ./weatherLogin
-  - go build -v ./weatherParser
-  - go build -v ./weatherLogin
+  - go test -v ./weatherParser/
+  - go test -v ./weatherLogin/
+  - go build -v ./weatherParser/
+  - go build -v ./weatherLogin/
