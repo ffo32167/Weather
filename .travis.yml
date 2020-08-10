@@ -9,5 +9,5 @@ before_script:
   - go get -t -v ./...
 script:
   - go test -v ./...
-  #- go build -v ./weatherParser/
-  #- go build -v ./weatherLogin/
+  - go build -o ./weatherParser/weatherParser ./weatherParser/
+  - go build -o ./weatherLogin/weatherLogin ./weatherLogin/
