@@ -1,0 +1,13 @@
+language: go
+go:
+- 1.7.3
+- tip
+before_install:
+  - ". $HOME/.nvm/nvm.sh"
+  - nvm install stable
+  - nvm use stable
+  - npm install
+script:
+  - go test -v ./dashboard/
+  - go build -v
+  - npm run build-production
