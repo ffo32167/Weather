@@ -1,4 +1,4 @@
-[![Build and Test](https://github.com/ffo32167/weather/workflows/Build%and%Test/badge.svg)](https://github.com/ffo32167/weather/actions)
+[![Build and Test](https://github.com/ffo32167/weather/workflows/Build%20and%20Test/badge.svg)](https://github.com/ffo32167/weather/actions)
 
 
 ДЛЯ ЧЕГО ЭТО
